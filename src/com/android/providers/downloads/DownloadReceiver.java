@@ -73,6 +73,7 @@ public class DownloadReceiver extends BroadcastReceiver {
     @Override
     public void onReceive(final Context context, final Intent intent) {
         final String action = intent.getAction();
+        Log.d(TAG, "onReceive action: " + action);
         if (Intent.ACTION_BOOT_COMPLETED.equals(action)
                 || Intent.ACTION_MEDIA_MOUNTED.equals(action)) {
             final PendingResult result = goAsync();
@@ -126,6 +127,11 @@ public class DownloadReceiver extends BroadcastReceiver {
     }
 
     private void handleBootCompleted(Context context) {
+        boolean isDownloadAlertEnabled = DownloadManager.isDownloadAlertEnabled();
+        Log.d(TAG, "handleBootCompleted isDownloadAlertEnabled: " + isDownloadAlertEnabled);
+        if (isDownloadAlertEnabled) {
+            Helpers.resetUnfinishedDownload(context);
+        }
         // Show any relevant notifications for completed downloads
         getDownloadNotifier(context).update();
 
@@ -178,6 +184,7 @@ public class DownloadReceiver extends BroadcastReceiver {
      */
     private void handleNotificationBroadcast(Context context, Intent intent) {
         final String action = intent.getAction();
+
         if (Constants.ACTION_LIST.equals(action)) {
             final long[] ids = intent.getLongArrayExtra(
                     DownloadManager.EXTRA_NOTIFICATION_CLICK_DOWNLOAD_IDS);
